@@ -57,7 +57,7 @@ class PostController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $query = Post::where('user_id', Auth::id());
+        $query = Post::query();
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
@@ -67,7 +67,7 @@ class PostController extends Controller
             $query->whereDate('scheduled_time', $request->date);
         }
 
-        $posts = $query->get();
+        $posts = $query->where('user_id', Auth::id())->get();
 
         return response()->json($posts);
     }
@@ -100,18 +100,12 @@ class PostController extends Controller
         return response()->json(['message' => 'Post deleted']);
     }
 
-    public function suggestBestTime()
+    public function show(Post $post)
     {
-        // Example logic: Fetch peak times from the database
-        return response()->json([
-            'best_times' => ['08:00 AM', '12:00 PM', '06:00 PM']
-        ]);
+        if ($post->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($post);
     }
-    public function analytics()
-{
-    return response()->json([
-        'scheduled' => Post::where('status', 'scheduled')->count(),
-        'published' => Post::where('status', 'published')->count(),
-    ]);
-}
 }

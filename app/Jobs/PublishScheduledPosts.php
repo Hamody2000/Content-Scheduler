@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\Post;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -18,19 +17,31 @@ class PublishScheduledPosts implements ShouldQueue
 
     public function handle()
     {
-        $now = Carbon::now();
+        Log::info('PublishScheduledPosts job started');
 
-        // Get all due posts
+        $now = \Carbon\Carbon::now();
         $posts = Post::where('status', 'scheduled')
             ->where('scheduled_time', '<=', $now)
             ->get();
 
         foreach ($posts as $post) {
-            // Mock publishing process (simulating API integration)
-            Log::info("Mock publishing post: " . $post->title);
-
-            // Update post status to published
-            $post->update(['status' => 'published']);
+            try {
+                $this->mockPublishingService($post);
+                Log::info("Publishing post: " . $post->title);
+                $post->update(['status' => 'published']);
+            } catch (\Exception $e) {
+                Log::error("Failed to publish post: " . $post->title . " - " . $e->getMessage());
+            }
         }
+
+        Log::info('PublishScheduledPosts job finished');
+    }
+    private function mockPublishingService($post)
+    {
+        // Simulating a 2-second delay as if it's calling an external API
+        sleep(2);
+
+        // Log instead of actually publishing
+        Log::info("Mock: Publishing post '{$post->title}' on {$post->platform}");
     }
 }

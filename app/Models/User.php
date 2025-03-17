@@ -60,5 +60,5 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Platform::class)->withPivot('active');
     }
-   
-}
+
+}  

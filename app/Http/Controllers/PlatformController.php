@@ -11,15 +11,36 @@ class PlatformController extends Controller
 {
     public function index()
     {
-        return response()->json(Platform::all());
+        $platforms = Platform::all();
+        $userId = Auth::id(); // Get authenticated user ID
+        $user = User::find($userId);
+
+        // Fetch user's active platforms
+        $activePlatformIds = $user->platforms()->pluck('platforms.id')->toArray();
+
+        // Add 'active' key to each platform
+        $platforms = $platforms->map(function ($platform) use ($activePlatformIds) {
+            $platform['active'] = in_array($platform->id, $activePlatformIds);
+            return $platform;
+        });
+
+        return response()->json($platforms);
     }
 
-    public function toggle(Request $request)
+    public function toggle(Platform $platform)
     {
-        $user = User::findOrFail($request->user_id);
-        $user->platforms()->syncWithoutDetaching($request->platforms);
+        $userId = Auth::id(); // Get authenticated user ID
+        $user = User::find($userId);
 
-        return response()->json(['message' => 'Platforms updated']);
+        // Check if the platform is currently associated with the user
+        if ($user->platforms()->where('platforms.id', $platform->id)->exists()) {
+            // Detach if it exists (deactivate)
+            $user->platforms()->detach($platform->id);
+            return response()->json(['message' => 'Platform deactivated']);
+        } else {
+            // Attach if it doesn't exist (activate)
+            $user->platforms()->attach($platform->id);
+            return response()->json(['message' => 'Platform activated']);
+        }
     }
 }
-

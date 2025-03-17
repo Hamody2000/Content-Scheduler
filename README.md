@@ -1,70 +1,100 @@
-<<<<<<< HEAD
-# Content-Scheduler
-=======
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📅 Laravel Post Scheduling API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project is a Laravel-based API that lets you schedule posts for platforms like Facebook, Twitter, Instagram, and LinkedIn. It uses Laravel Jobs & Queues for automatic publishing.
 
-## About Laravel
+## 🚀 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* **Schedule Posts:** Create posts with title, content, image, platform selection, and scheduled date/time.
+* **Automatic Publishing:** Posts publish automatically using Laravel Queues.
+* **Platform Management:** Toggle active platforms.
+* **API Endpoints:** Create, retrieve, update, and delete posts.
+* **Validation:** Platform-specific validation (e.g., character limits).
+* **Background Processing:** Laravel Queues for smooth processing.
+* **Scalability:** Designed for high volumes of posts and platforms.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📦 Installation
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1.  **Clone:** `git clone https://github.com/Hamody2000/Content-Scheduler.git && cd Content-Scheduler`
+2.  **Install:** `composer install`
+3.  **Env Setup:** `cp .env.example .env && php artisan key:generate`
+4.  **Migrate & Seed:** `php artisan migrate --seed`
+5.  **Queue Worker:** `php artisan queue:work`
+6.  **Start Server:** `php artisan serve`
 
-## Learning Laravel
+## 🔑 Authentication
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* **Register:** `POST /api/register`
+    * Body: `{"name": "name", "email": "email", "password": "password", "password_confirmation": "password"}`
+    * Response: User details and token.
+* **Login:** `POST /api/login`
+    * Body: `{"email": "email", "password": "password"}`
+    * Response: Token.
+* **Logout:** `POST /api/logout`
+    * Headers: `Authorization: Bearer {token}`
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 📝 Posts API
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+* **Create Post:** `POST /api/posts`
+    * Headers: `Authorization: Bearer {token}`
+    * Body: `{"title": "title", "content": "content", "image_url": "url", "scheduled_time": "2025-03-20 15:00:00", "platforms": [1]}`
+* **Update Post:** `PUT /api/posts/{post_id}`
+    * Headers: `Authorization: Bearer {token}`
+    * Body: `{"title": "title", "content": "content", "image_url": "url", "scheduled_time": "2025-03-21 16:00:00", "status": "scheduled"}`
+* **Get Posts:** `GET /api/posts`
+    * Headers: `Authorization: Bearer {token}`
+    * Query: `status=draft` (optional)
+* **Get User Posts:** `GET /api/user/posts`
+    * Headers: `Authorization: Bearer {token}`
+* **Delete Post:** `DELETE /api/posts/{post_id}`
+    * Headers: `Authorization: Bearer {token}`
 
-## Laravel Sponsors
+**Example Create Post Request:**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```http
+POST [http://127.0.0.1:8000/api/posts]
+Headers:
+    Content-Type: application/json
+    Authorization: Bearer {token}
+Body:
+{
+    "title": "Test Post",
+    "content": "This is a scheduled post",
+    "image_url": null,
+    "scheduled_time": "2025-03-14 12:00:00",
+    "platforms": [1, 2]
+}
 
-### Premium Partners
+📤 Platforms API
+List Platforms: GET /api/platforms
+Headers: Authorization: Bearer {token}
+Toggle Platform: PATCH /api/platforms/{platform_id}/toggle
+Headers: Authorization: Bearer {token}
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+✅ Key Trade-offs
+Laravel Jobs & Queues: Background processing, fault tolerance.
+Status Column: Tracks post lifecycle (draft, scheduled, published, failed).
+scheduled_time: Precise scheduling, timezone support.
 
-## Contributing
+🌐 API Endpoints Summary
+GET /api/posts: Retrieve user posts (filters: status, date).
+POST /api/posts: Schedule a new post.
+GET /api/posts/{id}: Get post details by ID.
+PUT /api/posts/{id}: Update a post.
+DELETE /api/posts/{id}: Delete a post.
+GET /api/platforms: List platforms.
+PATCH /api/platforms/{platform_id}/toggle: Toggle platform status.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Core Features
+Post Scheduling:
+Users can create posts with a title, content, optional image, and scheduled time.
+Posts can be scheduled for future publication.
 
-## Security Vulnerabilities
+Platform Integration:
+Posts can be scheduled for multiple platforms (e.g., Twitter, Instagram, LinkedIn, Facebook).
+Platform-specific validation ensures posts meet platform requirements (e.g., character limits).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
->>>>>>> 197c563 (Initial commit - Post Scheduling API)
+Automatic Publishing:
+A Laravel job (PublishScheduledPosts) runs every minute to check for due posts and publish them.
+The job updates the post status to published and logs the process.
